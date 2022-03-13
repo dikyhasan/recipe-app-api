@@ -10,4 +10,21 @@ services:
     volumes:
       - ./app:/app
     command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=recipe-app-api_db
+      - DB_NAME=app
+      - DB_USER=postgres
+      - DB_PASSWORD=supersecretpassword
+    depends_on:
+      - db
+  
+  db:
+    container_name: recipe-app-api_db
+    image: postgres:10-alpine
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=supersecretpassword
